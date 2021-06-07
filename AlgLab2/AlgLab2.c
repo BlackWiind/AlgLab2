@@ -19,10 +19,7 @@ int theight(Tree* t);                                                        //В
 int tmiddleh(Tree* t, int l);                                                //Средняя высота дерева
 int csumm(Tree* t);                                                          //Контрольная сумма
 void ltr(Tree* t);                                                           //Обход слева направо
-void search(Tree* t, int x);                                                 //Поиск по ключу
 Tree* isdp(int l, int r, int* A);                                            //Идеально сбалансираванное дерево
-void sdp(Tree** t, int d);                                                   //Случайное дерево поиска
-bool istree(Tree* t);                                                        //Проверяет является ли дерево двоичным деревом поиска
 
 Tree* root1 = NULL; *root2 = NULL;
 
@@ -33,19 +30,13 @@ int main() {
 	setlocale(LC_ALL, "rus");
 	srand(time(NULL));
 	printf("Введите количество вершин в дереве:\n");
-	scanf("%d", &n);
+	scanf_s("%d", &n);
 	system("cls");
 
 	A = (int*)malloc(sizeof(int) * n);
 	for (int i = 0; i < n; i++) {
 		A[i] = rand() % 1000;
-	}
-	for (int i = 0; i < n; i++) {
-		sdp(&root2, A[i]);
-	}
-	printf("Случайное дерево поиска:\n");
-	ltr(root2);
-	printf("\n");
+	}	
 	root1 = isdp(0, n - 1, A);
 	printf("Идеально сбалансированное дерево поиска:\n");
 	ltr(root1);
@@ -103,23 +94,6 @@ void ltr(Tree* t) {
 	}
 }
 
-void search(Tree* t, int x) {
-	if (t != NULL) {
-		if (t->data < x) {
-			search(t->right, x);
-		}
-		else if (t->data > x) {
-			search(t->left, x);
-		}
-		else {
-			printf("Вершина найдена.");
-		}
-	}
-	else {
-		printf("Вершина не найдена");
-	}
-}
-
 Tree* isdp(int l, int r, int* A) {
 	qsort(A, n, sizeof(int), cmp);
 	int k;
@@ -136,27 +110,6 @@ Tree* isdp(int l, int r, int* A) {
 		t->right = isdp(k + 1, r, A);
 		return t;
 	}
-}
-
-void sdp(Tree** t, int d) {
-	if ((*t) == NULL) {
-		(*t) = (Tree*)malloc(sizeof(Tree));
-		(*t)->data = d;
-		(*t)->left = (*t)->right = NULL;
-	}
-	else if ((*t)->data < d) {
-		sdp(&((*t)->right), d);
-	}
-	else if ((*t)->data > d) {
-		sdp(&((*t)->left), d);
-	}
-}
-
-bool istree(Tree* t) {
-	if (t != NULL && ((t->left != NULL && (t->data <= t->left->data || istree(t->left))) || (t->right != NULL && (t->data >= t->right->data || !istree(t->right))))) {
-		return false;
-	}
-	return true;
 }
 
 int cmp(const void* a, const void* b) {
