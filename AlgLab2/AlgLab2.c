@@ -7,6 +7,7 @@
 struct tnode                                                                 //дерево
 {
 	int data;
+	int balance;
 	struct tnode* left;
 	struct tnode* right;
 };
@@ -114,4 +115,52 @@ Tree* isdp(int l, int r, int* A) {
 
 int cmp(const void* a, const void* b) {
 	return *(int*)a - *(int*)b;
+}
+
+void LL(Tree *t) {  // обращение LL(&p);
+	Tree* q;
+	q = t->left;
+	q->balance = 0;
+	t->balance = 0;
+	t->left = q->right;
+	q->right = q;
+	t = q;
+}
+
+void LR(Tree* t) {
+	Tree* q;
+	Tree* r;
+	q = t->left;
+	r = t->right;
+	if (r->balance < 0)t->balance = 1;
+	else t->balance = 0;
+	if (r->balance > 0)q->balance = -1;
+	else q->balance = 0;
+	r->balance = 0;
+	t->left = r->right;
+	q->right = r->left;
+	r->left = q;
+	r->right = t;
+	t = r;
+
+}
+
+void AddAVL(Tree** t, int d) {
+	bool grown;
+	if ((*t) == NULL) {
+		(*t) = (Tree*)malloc(sizeof(Tree));
+		(*t)->data = d;
+		(*t)->left = (*t)->right = NULL;
+		(*t)->balance = 0;
+		grown = true;
+	}
+	else if((*t)->data>d) {
+		AddAVL((*t)->left, d);
+	}
+	if (grown) {
+		if ((*t)->balance > 0) { (*t)->balance = 0; grown = false; }
+		else if ((*t)->balance == 0) { (*t)->balance = -1; }
+		else if ((*t)->left->balance < 0) {}
+		else grown = false;		
+	}
 }
