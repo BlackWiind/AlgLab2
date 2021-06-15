@@ -42,7 +42,8 @@ int main() {
 
 	A = (int*)malloc(sizeof(int) * n);	
 	for (int i = 0; i < n; i++) {
-		A[i] = rand() % 1000;		
+		A[i] = 100-i;
+		/*A[i] = rand() % 1000;		*/
 	}
 	for (int i = 0; i < n; i++) {		
 		AddAVL(&root2, A[i]);
@@ -50,11 +51,14 @@ int main() {
 	root1 = isdp(0, n - 1, A);
 	printf("Идеально сбалансированное дерево поиска:\n");
 	ltr(root1);
+	printf("\n"); 
+	printf("Идеально сбалансированное дерево поиска:\n");
+	ltr(root2);
 	printf("\n");
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 	printf("+++++++++++|Размер|Высота|Средняя высота|контр. сумма|++++++++++++++++++++++++++++++++\n");
 	printf("+ИСДП %10d %7d %10.2f %15d\n", tsize(root1), theight(root1), (double)tmiddleh(root1, 1) / tsize(root1), csumm(root1));
-	//printf("++СДП %10d %7d %10.2f %15d\n", tsize(root2), theight(root2), (double)tmiddleh(root2, 1) / tsize(root2), csumm(root2));
+	printf("++СДП %10d %7d %10.2f %15d\n", tsize(root2), theight(root2), (double)tmiddleh(root2, 1) / tsize(root2), csumm(root2));
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 	getch();
 	return EXIT_SUCCESS;
@@ -126,42 +130,42 @@ int cmp(const void* a, const void* b) {
 	return *(int*)a - *(int*)b;
 }
 
-void LL(Tree *t) {  // обращение LL(&p);
+void LL(Tree **t) {  // обращение LL(&p);
 	Tree* q;
-	q = t->left;
+	q = (*t)->left;
 	q->balance = 0;
-	t->balance = 0;
-	t->left = q->right;
-	q->right = q;
-	t = q;
+	(*t)->balance = 0;
+	(*t)->left = q->right;
+	q->right = (*t);
+	(*t) = q;
 }
 
-void LR(Tree* t) {
+void LR(Tree** t) {
 	Tree* q;
 	Tree* r;
-	q = t->left;
+	q = (*t)->left;
 	r = q->right;
-	if (r->balance < 0)t->balance = 1;
-	else t->balance = 0;
+	if (r->balance < 0)(*t)->balance = 1;
+	else (*t)->balance = 0;
 	if (r->balance > 0)q->balance = -1;
 	else q->balance = 0;
 	r->balance = 0;
-	t->left = r->right;
+	(*t)->left = r->right;
 	q->right = r->left;
 	r->left = q;
-	r->right = t;
-	t = r;
+	r->right = (*t);
+	(*t) = r;
 
 }
 
-void RR(Tree* t) {
+void RR(Tree** t) {
 	Tree* q;
-	q = t->right;
+	q = (*t)->right;
 	q->balance = 0;
-	t->balance = 0;
-	t->right = q->left;
-	q->left = t;
-	t = q;
+	(*t)->balance = 0;
+	(*t)->right = q->left;
+	q->left = (*t);
+	(*t) = q;
 }
 
 void RL(Tree* t) {
@@ -182,7 +186,7 @@ void RL(Tree* t) {
 }
 
 void AddAVL(Tree** t, int d) {	
-	if ((*t) == NULL) {
+	if ((*t) == NULL) {		
 		(*t) = (Tree*)malloc(sizeof(Tree));
 		(*t)->data = d;
 		(*t)->left = (*t)->right = NULL;
@@ -190,24 +194,23 @@ void AddAVL(Tree** t, int d) {
 		grown = true;
 	}
 	else 
-		if ((*t)->data >= d) {
+		if ((*t)->data > d) {
 		AddAVL(&((*t)->left), d);
 		if (grown == true) {
 			if ((*t)->balance > 0) { (*t)->balance = 0; grown = false; }
 			else if ((*t)->balance == 0) { (*t)->balance = -1; }
-			else if ((*t)->left->balance < 0) { LL(*t); grown = false; }
-			else { LR(*t); grown = false; }
+			else if ((*t)->left->balance < 0) { LL(&(*t)); grown = false; }
+			//else { LR(&*t); grown = false; }
 		}
 	}
 	else
 		if ((*t)->data < d) {
 			AddAVL(&((*t)->right), d);
-			if (grown == true) {
+			/*if (grown == true) {
 				if ((*t)->balance < 0) { (*t)->balance = 0; grown = false; }
 				else if ((*t)->balance == 0) { (*t)->balance = 1; }
-				else if ((*t)->right->balance > 0) { RR(*t); grown = false; }
-				else { RL(*t); grown = false; }
-			}
-			else return;
+				else if ((*t)->right->balance > 0) { RR(&*t); grown = false; }
+				else { RL(&*t); grown = false; }
+			}*/			
 		}
 }
