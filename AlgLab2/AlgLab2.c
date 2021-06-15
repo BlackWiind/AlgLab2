@@ -21,11 +21,11 @@ int tmiddleh(Tree* t, int l);                                                //С
 int csumm(Tree* t);                                                          //Контрольная сумма
 void ltr(Tree* t);                                                           //Обход слева направо
 Tree* isdp(int l, int r, int* A);                                            //Идеально сбалансираванное дерево
-void AddAVL(Tree** t, int d);
-void LL(Tree* t);
-void LR(Tree* t);
-void RR(Tree* t);
-void RL(Tree* t);
+void AddAVL(Tree** t, int d);                                                //Добавление новой вершины в АВЛ дерево
+void LL(Tree** t);                                                            //Повороты
+void LR(Tree** t);
+void RR(Tree** t);
+void RL(Tree** t);
 
 Tree* root1 = NULL; *root2 = NULL;
 
@@ -40,25 +40,20 @@ int main() {
 	scanf_s("%d", &n);
 	system("cls");
 
-	A = (int*)malloc(sizeof(int) * n);	
-	for (int i = 0; i < n; i++) {
-		A[i] = 100-i;
-		/*A[i] = rand() % 1000;		*/
-	}
-	for (int i = 0; i < n; i++) {		
+	A = (int*)malloc(sizeof(int) * n);		
+	for (int i = 0; i < n; i++) {	
+		A[i] = rand() % 1000;
 		AddAVL(&root2, A[i]);
 	}	
 	root1 = isdp(0, n - 1, A);
-	printf("Идеально сбалансированное дерево поиска:\n");
-	ltr(root1);
 	printf("\n"); 
-	printf("Идеально сбалансированное дерево поиска:\n");
+	printf("АВЛ дерево поиска:\n");
 	ltr(root2);
 	printf("\n");
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 	printf("+++++++++++|Размер|Высота|Средняя высота|контр. сумма|++++++++++++++++++++++++++++++++\n");
 	printf("+ИСДП %10d %7d %10.2f %15d\n", tsize(root1), theight(root1), (double)tmiddleh(root1, 1) / tsize(root1), csumm(root1));
-	printf("++СДП %10d %7d %10.2f %15d\n", tsize(root2), theight(root2), (double)tmiddleh(root2, 1) / tsize(root2), csumm(root2));
+	printf("++АВЛ %10d %7d %10.2f %15d\n", tsize(root2), theight(root2), (double)tmiddleh(root2, 1) / tsize(root2), csumm(root2));
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 	getch();
 	return EXIT_SUCCESS;
@@ -117,8 +112,6 @@ Tree* isdp(int l, int r, int* A) {
 		k = (l + r) / 2;
 		t = (Tree*)malloc(sizeof(Tree));
 		if (t == NULL) { printf("Error!"); exit(1); }
-		/*/struct tnode* t;
-		struct tnode t;*/
 		t->data = A[k];
 		t->left = isdp(l, k - 1, A);
 		t->right = isdp(k + 1, r, A);
@@ -130,7 +123,7 @@ int cmp(const void* a, const void* b) {
 	return *(int*)a - *(int*)b;
 }
 
-void LL(Tree **t) {  // обращение LL(&p);
+void LL(Tree **t) { 
 	Tree* q;
 	q = (*t)->left;
 	q->balance = 0;
@@ -168,21 +161,21 @@ void RR(Tree** t) {
 	(*t) = q;
 }
 
-void RL(Tree* t) {
+void RL(Tree** t) {
 	Tree* q;
 	Tree* r;
-	q = t->right;
+	q = (*t)->right;
 	r = q->left;
-	if (r->balance > 0) t->balance = -1;
-	else t->balance = 0;
+	if (r->balance > 0) (*t)->balance = -1;
+	else (*t)->balance = 0;
 	if (r->balance < 0) q->balance = 1;
 	else q->balance = 0;
 	r->balance = 0;
-	t->right = r->left;
+	(*t)->right = r->left;
 	q->left = r->right;
-	r->left = t;
+	r->left = (*t);
 	r->right = q;
-	t = r;
+	(*t) = r;
 }
 
 void AddAVL(Tree** t, int d) {	
@@ -194,23 +187,23 @@ void AddAVL(Tree** t, int d) {
 		grown = true;
 	}
 	else 
-		if ((*t)->data > d) {
+		if ((*t)->data >= d) {
 		AddAVL(&((*t)->left), d);
 		if (grown == true) {
 			if ((*t)->balance > 0) { (*t)->balance = 0; grown = false; }
 			else if ((*t)->balance == 0) { (*t)->balance = -1; }
 			else if ((*t)->left->balance < 0) { LL(&(*t)); grown = false; }
-			//else { LR(&*t); grown = false; }
+			else { LR(&(*t)); grown = false; }
 		}
 	}
 	else
 		if ((*t)->data < d) {
 			AddAVL(&((*t)->right), d);
-			/*if (grown == true) {
+			if (grown == true) {
 				if ((*t)->balance < 0) { (*t)->balance = 0; grown = false; }
 				else if ((*t)->balance == 0) { (*t)->balance = 1; }
-				else if ((*t)->right->balance > 0) { RR(&*t); grown = false; }
-				else { RL(&*t); grown = false; }
-			}*/			
+				else if ((*t)->right->balance > 0) { RR(&(*t)); grown = false; }
+				else { RL(&(*t)); grown = false; }
+			}	
 		}
 }
